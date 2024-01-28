@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UserInfo</title>
+</head>
+
+<body>
+
+    <h1>User Information Form</h1>
+
+    <form id="userInfoForm" action="/users" method="post">
+        <div>
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+        </div>
+
+        <div>
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+        </div>
+
+        <div>
+            <label for="birthday">Birthday:</label>
+            <input type="date" id="birthday" name="birthday" required>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('userInfoForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('/users', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    fetch('/users')
+                        .then(response => response.json())
+                        .then(allUsers => displayUsers(allUsers))
+                        .catch(error => console.error('Error fetching users:', error));
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        function displayUsers(users) {
+            const container = document.createElement('div');
+            const table = document.createElement('table');
+            // Create table header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['ID', 'First Name', 'Last Name', 'Birthday', 'Timestamp'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Create table body
+            const tbody = document.createElement('tbody');
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                ['id', 'firstName', 'lastName', 'birthday', 'timestamp'].forEach(key => {
+                    const td = document.createElement('td');
+                    td.textContent = user[key];
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            document.body.appendChild(container);
+            container.appendChild(table);
+        }
+
+    </script>
+</body>
+
+</html>
